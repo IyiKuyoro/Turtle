@@ -41,3 +41,8 @@ venv.bak/
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Local storage account info
+__blobstorage__
+__queuestorage__
+__azurite_*
