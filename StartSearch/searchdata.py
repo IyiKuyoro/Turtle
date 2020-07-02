@@ -1,10 +1,9 @@
 import requests
-
-GOOGLE_SEARCH_ENGINE_ID = '010789377440770036764:wrpyd9iz6d8&q'
+import os
 
 def get_search_result_by_term_and_country(key, term, country, num_of_results, start_at):
     try:
-        global GOOGLE_SEARCH_ENGINE_ID
+        GOOGLE_SEARCH_ENGINE_ID = os.environ["GOOGLE_SEARCH_ENGINE_ID"]
         url = 'https://www.googleapis.com/customsearch/v1?key={}&cx={}&q={}&cr={}&lr=lang_en&num={}&start={}'.format(
             key, GOOGLE_SEARCH_ENGINE_ID, term, country, num_of_results, start_at
             )
@@ -18,7 +17,7 @@ def get_search_result_by_term_and_country(key, term, country, num_of_results, st
 
 def get_search_result_by_term(key, term, num_of_results, start_at):
     try:
-        global GOOGLE_SEARCH_ENGINE_ID
+        GOOGLE_SEARCH_ENGINE_ID = os.environ["GOOGLE_SEARCH_ENGINE_ID"]
         url = 'https://www.googleapis.com/customsearch/v1?key={}&cx={}&q={}&lr=lang_en&num={}&start={}'.format(
             key, GOOGLE_SEARCH_ENGINE_ID, term, num_of_results, start_at
             )
