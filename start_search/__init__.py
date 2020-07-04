@@ -168,6 +168,5 @@ def main(mytimer: func.TimerRequest, sendGridMessage: func.Out[str]) -> None:
         send_email(os.environ["USER_EMAIL"], str(email_content), sendGridMessage)
 
         logging.info('Report was generated at %s', datetime.date.today())
-    except Exception: # Change to server error
-        # Send main informing of server error to developer
-        raise
+    except Exception as err:
+        send_email(os.environ["DEVELOPER_EMAIL"], str(err), sendGridMessage)

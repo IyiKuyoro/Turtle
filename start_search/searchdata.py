@@ -21,19 +21,16 @@ def get_search_result_by_term_and_country(key, term, country, num_of_results, st
     Returns:
         dic: A dictionary containing the google search response
     """
-    try:
-        technical_term = term.split(' ')
-        google_search_engine_id = os.environ["GOOGLE_SEARCH_ENGINE_ID"]
-        url = 'https://www.googleapis.com/customsearch/v1' \
-              '?key={}&cx={}&q={}&cr={}&lr=lang_en&num={}&start={}&exactTerms={}'.format(
-                  key, google_search_engine_id, term, country, num_of_results, start_at, technical_term[0]
-              )
-        google_search_response = requests.get(url)
+    technical_term = term.split(' ')
+    google_search_engine_id = os.environ["GOOGLE_SEARCH_ENGINE_ID"]
+    url = 'https://www.googleapis.com/customsearch/v1' \
+            '?key={}&cx={}&q={}&cr={}&lr=lang_en&num={}&start={}&exactTerms={}'.format(
+                key, google_search_engine_id, term, country,
+                num_of_results, start_at, technical_term[0]
+            )
+    google_search_response = requests.get(url)
 
-        return google_search_response.json()
-    except Exception:
-        # ToDo Raise server error
-        raise
+    return google_search_response.json()
 
 
 def get_search_result_by_term(key, term, num_of_results, start_at, excluded_sites):
@@ -48,25 +45,20 @@ def get_search_result_by_term(key, term, num_of_results, start_at, excluded_site
     Returns:
         dic: A dictionary containing the google search response
     """
-    try:
-        excluded_sites = '+'.join(excluded_sites)
-        technical_term = term.split(' ')
-        countries = '+'.join(technical_term[0:])
-        google_search_engine_id = os.environ["GOOGLE_SEARCH_ENGINE_ID"]
-        url = 'https://www.googleapis.com/customsearch/v1' \
-              '?key={key}&cx={cx}&q={q}&lr=lang_en&num={num}&start={start}' \
-              '&exactTerms={exact_terms}&safe={safe}&siteSearch={site_search}' \
-              '&siteSearchFilter={site_search_filter}' \
-              '&dateRestrict={date_restricted}'.format(
-                  key=key, cx=google_search_engine_id,
-                  q=term, num=num_of_results, start=start_at,
-                  exact_terms=technical_term[0], safe='ACTIVE',
-                  site_search=excluded_sites, site_search_filter='e',
-                  date_restricted='m[6]'
-              )
-        google_search_response = requests.get(url)
+    excluded_sites = '+'.join(excluded_sites)
+    technical_term = term.split(' ')
+    google_search_engine_id = os.environ["GOOGLE_SEARCH_ENGINE_ID"]
+    url = 'https://www.googleapis.com/customsearch/v1' \
+            '?key={key}&cx={cx}&q={q}&lr=lang_en&num={num}&start={start}' \
+            '&exactTerms={exact_terms}&safe={safe}&siteSearch={site_search}' \
+            '&siteSearchFilter={site_search_filter}' \
+            '&dateRestrict={date_restricted}'.format(
+                key=key, cx=google_search_engine_id,
+                q=term, num=num_of_results, start=start_at,
+                exact_terms=technical_term[0], safe='ACTIVE',
+                site_search=excluded_sites, site_search_filter='e',
+                date_restricted='m[6]'
+            )
+    google_search_response = requests.get(url)
 
-        return google_search_response.json()
-    except Exception:
-        # ToDo Raise server error
-        raise
+    return google_search_response.json()

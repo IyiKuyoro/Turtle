@@ -16,17 +16,13 @@ def _get_service():
     Returns:
         Discovery: The created google sheet service
     """
-    try:
-        scopes = ['https://www.googleapis.com/auth/spreadsheets']
-        secrete_file = os.path.join(os.getcwd(), 'secret.json')
+    scopes = ['https://www.googleapis.com/auth/spreadsheets']
+    secrete_file = os.path.join(os.getcwd(), 'secret.json')
 
-        credentials = service_account.Credentials.from_service_account_file(secrete_file,
-                                                                            scopes=scopes)
-        service = discovery.build('sheets', 'v4', credentials=credentials)
-        return service
-    except Exception:
-        # ToDo Raise a server error here
-        raise
+    credentials = service_account.Credentials.from_service_account_file(secrete_file,
+                                                                        scopes=scopes)
+    service = discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+    return service
 
 
 def _get_data_from_google_sheet(sheet_id, fields, doc_range):
