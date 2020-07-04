@@ -9,8 +9,8 @@ import math
 import json
 import os
 
-import azure.functions as func
 from dominate.tags import body, div, a, h1, p
+import azure.functions as func
 from .getdata import get_sheet_contents, update_data_in_google_sheet
 from .searchdata import get_search_result_by_term
 

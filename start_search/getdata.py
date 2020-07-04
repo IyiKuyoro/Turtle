@@ -95,15 +95,15 @@ def parse_data(data, meta):
                            for index, value in enumerate(result)
                            if index != 0 and value[2] != '']
         }
-    else:
-        return {
-            result[0][0]: [value[0]
-                           for index, value in enumerate(result)
-                           if index != 0 and value[0] != ''],
-            result[0][1]: [value[1]
-                           for index, value in enumerate(result)
-                           if index != 0 and value[1] != '']
-        }
+
+    return {
+        result[0][0]: [value[0]
+                       for index, value in enumerate(result)
+                       if index != 0 and value[0] != ''],
+        result[0][1]: [value[1]
+                       for index, value in enumerate(result)
+                       if index != 0 and value[1] != '']
+    }
 
 
 def get_sheet_contents(sheet_id, fields, doc_range, meta):
