@@ -120,3 +120,20 @@ def get_sheet_contents(sheet_id, fields, doc_range, meta):
     """
     contents = _get_data_from_google_sheet(sheet_id, fields, doc_range)
     return parse_data(contents, meta)
+
+
+def get_excluded_site_list(sheet_id, fields, doc_range):
+    """
+    Get the list of sites to exclude from search
+
+    Args:
+        sheet_id (string): The google sheet id
+        fields (string): The fields that should be returned in the response of the request
+        doc_range (string): The range of cells to be returned
+    """
+    contents = _get_data_from_google_sheet(
+        sheet_id=sheet_id,
+        fields=fields,
+        doc_range=doc_range
+    )
+    return [value[0] for value in contents['values']]

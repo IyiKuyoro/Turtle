@@ -22,10 +22,11 @@ def get_search_result_by_term_and_country(key, term, country, num_of_results, st
         dic: A dictionary containing the google search response
     """
     try:
+        technical_term = term.split(' ')
         google_search_engine_id = os.environ["GOOGLE_SEARCH_ENGINE_ID"]
         url = 'https://www.googleapis.com/customsearch/v1' \
-              '?key={}&cx={}&q={}&cr={}&lr=lang_en&num={}&start={}'.format(
-                  key, google_search_engine_id, term, country, num_of_results, start_at
+              '?key={}&cx={}&q={}&cr={}&lr=lang_en&num={}&start={}&exactTerms={}'.format(
+                  key, google_search_engine_id, term, country, num_of_results, start_at, technical_term[0]
               )
         google_search_response = requests.get(url)
 
@@ -35,7 +36,7 @@ def get_search_result_by_term_and_country(key, term, country, num_of_results, st
         raise
 
 
-def get_search_result_by_term(key, term, num_of_results, start_at):
+def get_search_result_by_term(key, term, num_of_results, start_at, excluded_sites):
     """Searches for a term on the web
 
     Args:
@@ -48,10 +49,20 @@ def get_search_result_by_term(key, term, num_of_results, start_at):
         dic: A dictionary containing the google search response
     """
     try:
+        excluded_sites = '+'.join(excluded_sites)
+        technical_term = term.split(' ')
+        countries = '+'.join(technical_term[0:])
         google_search_engine_id = os.environ["GOOGLE_SEARCH_ENGINE_ID"]
         url = 'https://www.googleapis.com/customsearch/v1' \
-              '?key={}&cx={}&q={}&lr=lang_en&num={}&start={}'.format(
-                  key, google_search_engine_id, term, num_of_results, start_at
+              '?key={key}&cx={cx}&q={q}&lr=lang_en&num={num}&start={start}' \
+              '&exactTerms={exact_terms}&safe={safe}&siteSearch={site_search}' \
+              '&siteSearchFilter={site_search_filter}&orTerms={or_terms}' \
+              '&dateRestrict={date_restricted}'.format(
+                  key=key, cx=google_search_engine_id,
+                  q=term, num=num_of_results, start=start_at,
+                  exact_terms=technical_term[0], safe='ACTIVE',
+                  site_search=excluded_sites, site_search_filter='e',
+                  or_terms=countries, date_restricted='m[6]'
               )
         google_search_response = requests.get(url)
 

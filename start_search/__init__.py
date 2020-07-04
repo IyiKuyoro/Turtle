@@ -11,7 +11,7 @@ import os
 
 from dominate.tags import body, div, a, h1, p
 import azure.functions as func
-from .getdata import get_sheet_contents, update_data_in_google_sheet
+from .getdata import get_sheet_contents, update_data_in_google_sheet, get_excluded_site_list
 from .searchdata import get_search_result_by_term
 
 
@@ -60,7 +60,7 @@ def send_email(receiver, content, send_grid_message):
     send_grid_message.set(json.dumps(message))
 
 
-def main(_: func.TimerRequest, send_grid_message: func.Out[str]) -> None:
+def main(mytimer: func.TimerRequest, sendGridMessage: func.Out[str]) -> None:
     """The main function that is triggered when the timmer elapses
 
     Args:
@@ -92,6 +92,13 @@ def main(_: func.TimerRequest, send_grid_message: func.Out[str]) -> None:
             google_meta_sheet_range,
             True
             )
+
+        blacklisted_sites = get_excluded_site_list(
+            sheet_id=google_sheet_id,
+            fields='values',
+            doc_range='exclude_site!A1:A100'
+        )
+
         last_result = int(turtle_meta['last_result'][0])
         num_of_groups = int(turtle_meta['num_of_groups'][0])
         next_group = int(turtle_meta['next_group'][0])
@@ -109,7 +116,7 @@ def main(_: func.TimerRequest, send_grid_message: func.Out[str]) -> None:
             search_term = '{} {}'.format(term, country)
             results = get_search_result_by_term(
                 google_search_api_key, search_term,
-                num_of_results, last_result
+                num_of_results, last_result, blacklisted_sites
             )
 
             if int(results['searchInformation']['totalResults']) > 0:
@@ -120,6 +127,7 @@ def main(_: func.TimerRequest, send_grid_message: func.Out[str]) -> None:
                         "snippet": item['snippet'],
                     }
                 report[search_term] = map(rearange, results['items'])
+                break
 
         # Update turtle meta
         update_data_in_google_sheet(
@@ -132,7 +140,7 @@ def main(_: func.TimerRequest, send_grid_message: func.Out[str]) -> None:
 
         # Send the email
         email_content = generate_email(report)
-        send_email(os.environ["USER_EMAIL"], str(email_content), send_grid_message)
+        send_email(os.environ["USER_EMAIL"], str(email_content), sendGridMessage)
 
         logging.info('Report was generated at %s', datetime.date.today())
     except Exception: # Change to server error
