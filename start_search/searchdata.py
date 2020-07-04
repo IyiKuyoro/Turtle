@@ -56,13 +56,13 @@ def get_search_result_by_term(key, term, num_of_results, start_at, excluded_site
         url = 'https://www.googleapis.com/customsearch/v1' \
               '?key={key}&cx={cx}&q={q}&lr=lang_en&num={num}&start={start}' \
               '&exactTerms={exact_terms}&safe={safe}&siteSearch={site_search}' \
-              '&siteSearchFilter={site_search_filter}&orTerms={or_terms}' \
+              '&siteSearchFilter={site_search_filter}' \
               '&dateRestrict={date_restricted}'.format(
                   key=key, cx=google_search_engine_id,
                   q=term, num=num_of_results, start=start_at,
                   exact_terms=technical_term[0], safe='ACTIVE',
                   site_search=excluded_sites, site_search_filter='e',
-                  or_terms=countries, date_restricted='m[6]'
+                  date_restricted='m[6]'
               )
         google_search_response = requests.get(url)
 

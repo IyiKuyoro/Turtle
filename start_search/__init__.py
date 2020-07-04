@@ -60,6 +60,30 @@ def send_email(receiver, content, send_grid_message):
     send_grid_message.set(json.dumps(message))
 
 
+def remove_duplicates(report):
+    """
+    Remove all duplicate results from report
+
+    Args:
+        report (dic): The report to be sent
+
+    Returns:
+        dic: The filtered report
+    """
+    dic = {}
+    result = {}
+
+    for search_term in report:
+        for item in report[search_term]:
+            if item['title'] not in dic:
+                dic[item['title']] = True
+                if search_term in result:
+                    result[search_term].append(item)
+                else:
+                    result[search_term] = [item]
+
+    return result
+
 def main(mytimer: func.TimerRequest, sendGridMessage: func.Out[str]) -> None:
     """The main function that is triggered when the timmer elapses
 
@@ -75,7 +99,7 @@ def main(mytimer: func.TimerRequest, sendGridMessage: func.Out[str]) -> None:
         google_data_sheet_range = 'Sheet1!A1:B100'
         google_meta_sheet_range = 'turtle_meta!A1:C3'
         google_search_api_key = os.environ["GOOGLE_SEARCH_API_KEY"]
-        num_of_results = 2
+        num_of_results = 3
 
         report = {}
 
@@ -127,7 +151,8 @@ def main(mytimer: func.TimerRequest, sendGridMessage: func.Out[str]) -> None:
                         "snippet": item['snippet'],
                     }
                 report[search_term] = map(rearange, results['items'])
-                break
+
+        report = remove_duplicates(report)
 
         # Update turtle meta
         update_data_in_google_sheet(
@@ -135,7 +160,7 @@ def main(mytimer: func.TimerRequest, sendGridMessage: func.Out[str]) -> None:
             'turtle_meta!A2:C2',
             [[next_group + 1 if next_group < 3 else 0,
               num_of_groups,
-              last_result + 2 if next_group == 3 else last_result]]
+              last_result + num_of_results if next_group == 3 else last_result]]
         )
 
         # Send the email
