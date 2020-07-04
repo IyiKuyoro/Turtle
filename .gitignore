@@ -49,3 +49,5 @@ __azurite_*
 
 # Credentials
 secret.json
+
+.vscode

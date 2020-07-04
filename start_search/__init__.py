@@ -1,3 +1,8 @@
+"""Contains the main function that is triggered when the timmer elapses
+
+Returns:
+    Module: The main module
+"""
 import datetime
 import logging
 import math
@@ -33,48 +38,58 @@ def generate_email(report):
     return email_body
 
 
-def send_email(to, content, sendGridMessage):
+def send_email(receiver, content, send_grid_message):
     """Send an email
 
     Args:
-        to (string): The email address of the recipient
+        receiver (string): The email address of the recipient
         content (string): The content of the email
-        sendGridMessage (object): The send grid messager
+        send_grid_message (object): The send grid messager
     """
     message = {
         "personalizations": [{
-        "to": [{
-            "email": to
+            "to": [{
+                "email": receiver
             }]}],
         "subject": "Alert Me Report for {}".format(datetime.date.today()),
         "content": [{
             "type": "text/HTML",
-            "value": content }]}
+            "value": content
+            }]}
 
-    sendGridMessage.set(json.dumps(message))
+    send_grid_message.set(json.dumps(message))
 
 
-def main(mytimer: func.TimerRequest, sendGridMessage: func.Out[str]) -> None:
+def main(_: func.TimerRequest, send_grid_message: func.Out[str]) -> None:
+    """The main function that is triggered when the timmer elapses
+
+    Args:
+        _ (func.TimerRequest): The "my_timer" azure function argument
+        send_grid_message (func.Out[str]): The SendGrid API object
+
+    Returns:
+        None: This function returns None
+    """
     try:
-        GOOGLE_SHEET_ID = os.environ["GOOGLE_SHEET_ID"]
-        GOOGLE_DATA_SHEET_RANGE = 'Sheet1!A1:B100'
-        GOOGLE_META_SHEET_RANGE = 'turtle_meta!A1:C3'
-        GOOGLE_SEARCH_API_KEY = os.environ["GOOGLE_SEARCH_API_KEY"]
-        NUM_OF_RESULTS = 2
+        google_sheet_id = os.environ["GOOGLE_SHEET_ID"]
+        google_data_sheet_range = 'Sheet1!A1:B100'
+        google_meta_sheet_range = 'turtle_meta!A1:C3'
+        google_search_api_key = os.environ["GOOGLE_SEARCH_API_KEY"]
+        num_of_results = 2
 
         report = {}
 
         contents = get_sheet_contents(
-            GOOGLE_SHEET_ID,
+            google_sheet_id,
             'values',
-            GOOGLE_DATA_SHEET_RANGE,
+            google_data_sheet_range,
             False
             )
 
         turtle_meta = get_sheet_contents(
-            GOOGLE_SHEET_ID,
+            google_sheet_id,
             'values',
-            GOOGLE_META_SHEET_RANGE,
+            google_meta_sheet_range,
             True
             )
         last_result = int(turtle_meta['last_result'][0])
@@ -92,29 +107,32 @@ def main(mytimer: func.TimerRequest, sendGridMessage: func.Out[str]) -> None:
         for term in contents['Technical Term']:
             country = group_countries[next_group]
             search_term = '{} {}'.format(term, country)
-            results = get_search_result_by_term(GOOGLE_SEARCH_API_KEY, search_term, NUM_OF_RESULTS, last_result)
+            results = get_search_result_by_term(
+                google_search_api_key, search_term,
+                num_of_results, last_result
+            )
 
             if int(results['searchInformation']['totalResults']) > 0:
-                def filter(item): 
+                def rearange(item):
                     return {
                         "title": item['title'],
                         "link": item['link'],
                         "snippet": item['snippet'],
                     }
-                report[search_term] = map(filter, results['items'])
+                report[search_term] = map(rearange, results['items'])
 
         # Update turtle meta
         update_data_in_google_sheet(
-            GOOGLE_SHEET_ID,
+            google_sheet_id,
             'turtle_meta!A2:C2',
             [[next_group + 1 if next_group < 3 else 0,
-            num_of_groups,
-            last_result + 2 if next_group == 3 else last_result]]
+              num_of_groups,
+              last_result + 2 if next_group == 3 else last_result]]
         )
 
         # Send the email
         email_content = generate_email(report)
-        send_email(os.environ["USER_EMAIL"], str(email_content), sendGridMessage)
+        send_email(os.environ["USER_EMAIL"], str(email_content), send_grid_message)
 
         logging.info('Report was generated at %s', datetime.date.today())
     except Exception: # Change to server error
