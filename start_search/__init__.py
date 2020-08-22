@@ -27,7 +27,7 @@ def main(mytimer: func.TimerRequest, sendGridMessage: func.Out[str]) -> None:
     """
     try:
         google_sheet_id = os.environ["GOOGLE_SHEET_ID"]
-        num_of_results = 3
+        num_of_results = 2
         report = []
 
         contents, turtle_meta, blacklisted_sites = get_all_required_data(google_sheet_id)
@@ -44,7 +44,6 @@ def main(mytimer: func.TimerRequest, sendGridMessage: func.Out[str]) -> None:
             last_result=last_result
         )
         report = remove_duplicates(report)
-        report = random.sample(report, 50)
 
         # Update turtle meta
         update_data_in_google_sheet(

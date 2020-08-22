@@ -35,7 +35,7 @@ def get_search_result_by_term(key, term, num_of_results, start_at, excluded_site
                 site_search=excluded_sites, site_search_filter='e',
                 date_restricted='m6'
             )
-    if country == '':
+    if country != '':
         url += '&cr={country}'.format(country=country)
 
     google_search_response = requests.get(url)

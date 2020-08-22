@@ -4,6 +4,7 @@ This module contains helper methods for the main function
 import os
 import math
 import json
+import random
 import datetime
 
 from dominate.tags import body, div, a, h1, p
@@ -147,6 +148,7 @@ def run_all_google_searches(contents, blacklisted_sites, num_of_groups, next_gro
         list: A list of results gotten from all the search
     """
     report = []
+    dic_report = dict()
     google_search_api_key = os.environ["GOOGLE_SEARCH_API_KEY"]
 
     # Group countries
@@ -157,14 +159,17 @@ def run_all_google_searches(contents, blacklisted_sites, num_of_groups, next_gro
     end_country_group = country_div*(next_group + 1)
     # Run google search against each term
     for term in contents['Technical Term']:
+        dic_report[term] = dict()
         for country in contents['Country'][start_country_group:end_country_group]:
+            dic_report[term][country] = []
             country_code = get_country_code(country.lower())
 
             joined_search_term = '{} {}'.format(term, country)
+
             results = get_search_result_by_term(
                 key=google_search_api_key,
                 term=joined_search_term,
-                num_of_results=10,
+                num_of_results=2,
                 start_at=last_result,
                 excluded_sites=blacklisted_sites,
                 country=country_code
@@ -180,5 +185,10 @@ def run_all_google_searches(contents, blacklisted_sites, num_of_groups, next_gro
                     }
                 for item in results['items']:
                     report.append(rearange(item))
+                    dic_report[term][country].append(rearange(item))
+
+    pp('>>>>>>>>>>>>>>>>>>')
+    pp(dic_report)
+    pp('>>>>>>>>>>>>>>>>>>')
 
     return report
