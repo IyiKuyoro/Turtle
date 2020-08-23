@@ -7,7 +7,8 @@ import json
 import random
 import datetime
 
-from dominate.tags import body, div, a, h1, p
+from pprint import pprint as pp
+from dominate.tags import body, div, a, h1, h2, h3, h4, p
 from .getdata import get_sheet_contents, get_excluded_site_list
 from .searchdata import get_search_result_by_term
 
@@ -24,12 +25,20 @@ def generate_email(report):
     email_body = body()
     header = h1("This weeks search results")
     email_body.add(header)
-    for result in report:
-        link = a(h1(result['title']))
-        link['href'] = result['link']
-        snippet = p(result['snippet'])
-        item = div(link, snippet)
-        email_body.add(item)
+    for (term, country_dic) in report.items():
+        term_header = h2(term)
+        term_div = div(term_header)
+        email_body.add(term_div)
+        for (country, results) in country_dic.items():
+            country_header = h3(country)
+            country_div = div(country_header)
+            email_body.add(country_div)
+            for result in results:
+                link = a(h4(result['title']))
+                link['href'] = result['link']
+                snippet = p(result['snippet'])
+                item = div(link, snippet)
+                country_div.add(item)
 
     return email_body
 
@@ -187,8 +196,4 @@ def run_all_google_searches(contents, blacklisted_sites, num_of_groups, next_gro
                     report.append(rearange(item))
                     dic_report[term][country].append(rearange(item))
 
-    pp('>>>>>>>>>>>>>>>>>>')
-    pp(dic_report)
-    pp('>>>>>>>>>>>>>>>>>>')
-
-    return report
+    return dic_report
