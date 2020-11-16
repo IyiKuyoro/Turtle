@@ -22,16 +22,14 @@ def get_search_result_by_term(key, term, num_of_results, start_at, excluded_site
         dic: A dictionary containing the google search response
     """
     excluded_sites = '+'.join(excluded_sites)
-    technical_term = term.split(' ')
     google_search_engine_id = os.environ["GOOGLE_SEARCH_ENGINE_ID"]
     url = 'https://www.googleapis.com/customsearch/v1' \
             '?key={key}&cx={cx}&q={q}&lr=lang_en&num={num}&start={start}' \
-            '&exactTerms={exact_terms}&safe={safe}&siteSearch={site_search}' \
+            '&safe={safe}&siteSearch={site_search}' \
             '&siteSearchFilter={site_search_filter}' \
             '&dateRestrict={date_restricted}'.format(
                 key=key, cx=google_search_engine_id,
-                q=term, num=num_of_results, start=start_at,
-                exact_terms=technical_term[0], safe='ACTIVE',
+                q=term, num=num_of_results, start=start_at, safe='ACTIVE',
                 site_search=excluded_sites, site_search_filter='e',
                 date_restricted='m6'
             )

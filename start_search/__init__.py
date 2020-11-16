@@ -4,7 +4,6 @@ Returns:
     Module: The main module
 """
 import os
-import json
 import random
 import logging
 import datetime
@@ -43,7 +42,7 @@ def main(mytimer: func.TimerRequest, sendGridMessage: func.Out[str]) -> None:
             next_group=next_group,
             last_result=last_result
         )
-        # report = remove_duplicates(report)
+        report = remove_duplicates(report)
 
         # Update turtle meta
         update_data_in_google_sheet(

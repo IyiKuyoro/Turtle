@@ -4,10 +4,8 @@ This module contains helper methods for the main function
 import os
 import math
 import json
-import random
 import datetime
 
-from pprint import pprint as pp
 from dominate.tags import body, div, a, h1, h2, h3, h4, p
 from .getdata import get_sheet_contents, get_excluded_site_list
 from .searchdata import get_search_result_by_term
@@ -76,14 +74,23 @@ def remove_duplicates(report):
         dic: The filtered report
     """
     dic = {}
-    result = []
 
-    for item in report:
-        if item['title'] not in dic and '.exe' not in item['link']:
-            dic[item['title']] = True
-            result.append(item)
+    for (_, country_dic) in report.items():
+        for (country, results) in country_dic.items():
+            new_results = []
+            for result in results:
+                title = result['title']
+                link = result['link']
 
-    return result
+                if title not in dic and link not in dic:
+                    new_results.append(result)
+
+                dic[title] = True
+                dic[link] = True
+
+            country_dic[country] = new_results
+
+    return report
 
 
 def get_country_code(country):
