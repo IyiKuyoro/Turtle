@@ -34,7 +34,7 @@ def generate_email(report):
             for result in results:
                 link = a(h4(result['title']))
                 link['href'] = result['link']
-                snippet = p(result['snippet'])
+                snippet = p(result['snippet']) if 'snippet' in result else p("")
                 item = div(link, snippet)
                 country_div.add(item)
 
@@ -149,6 +149,14 @@ def get_all_required_data(google_sheet_id):
     return (contents, turtle_meta, blacklisted_sites)
 
 
+def rearange(item):
+    return {
+        "title": item['title'],
+        "link": item['link'],
+        "snippet": item['snippet'] if 'snippet' in item else '',
+    }
+
+
 def run_all_google_searches(contents, blacklisted_sites, num_of_groups, next_group, last_result):
     """
     Run the search for each pair of terms
@@ -193,12 +201,6 @@ def run_all_google_searches(contents, blacklisted_sites, num_of_groups, next_gro
 
             # Sort out the data to be displayed
             if int(results['searchInformation']['totalResults']) > 0:
-                def rearange(item):
-                    return {
-                        "title": item['title'],
-                        "link": item['link'],
-                        "snippet": item['snippet'],
-                    }
                 for item in results['items']:
                     report.append(rearange(item))
                     dic_report[term][country].append(rearange(item))
